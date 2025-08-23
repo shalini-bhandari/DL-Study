@@ -108,3 +108,34 @@ plt.axis('square')
 plt.legend()
 plt.grid(True)
 plt.show()
+
+def predict_from_user_input(model, scaler):
+    feature_names = [
+        "Median Income", "House Age", "Average Rooms", "Average Bedrooms",
+        "Block group population", "Average Occupancy", "Latitude", "Longitude"
+    ]
+    
+    user_input = []
+    print("Please enter the following features:")
+
+    for feature in feature_names:
+        while True:
+            try:
+                value = float(input(f"Enter value for {feature}: "))
+                user_input.append(value)
+                break
+            except ValueError:
+                print("Invalid input. Please enter a numeric value.")
+        
+    user_input_array = np.array(user_input).reshape(1, -1)
+    scaled_input = scaler.transform(user_input_array)
+
+    predicted_value = model.predict(scaled_input)
+    predicted_price = predicted_value[0][0] * 100000
+
+    loss, mae = model.evaluate(X_test_scaled, y_test, verbose=0)
+    mae_in_inr = mae * 100000
+
+    print(f"\nPredicted Median House Value: {predicted_price:.2f}")
+  
+predict_from_user_input(model, scaler)
