@@ -1,34 +1,64 @@
+import pandas as pd
+import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow import keras
 from tensorflow.keras import layers
-import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
 
-# Generate dummy data
-X = np.arange(-100, 100, 4)
-y = 2 * X + 1
+from sklearn.datasets import fetch_california_housing 
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 
-X_train = X.reshape(-1, 1)
-y_train = y.reshape(-1, 1)
+housing = fetch_california_housing()
+df = pd.DataFrame(housing.data, columns=housing.feature_names)
+df['MedHouseVal'] = housing.target
 
-print("Sample X_train:", X_train[:5])
-print("Sample y_train:", y_train[:5])
+print("First 5 rows of the dataset:")
+print(df.head())
+
+#Exploratory Data Analysis 
+print("\nDataset information:")
+print(df.info())
+
+print("\nDescriptive Statistics:")
+print(df.describe())
+
+#Visualizations
+df.hist(bins=30, figsize=(15,10))
+plt.suptitle("Feature Distributions Histograms", fontsize=16)
+plt.show()
+
+# Calculate correlation matrix
+corr_matrix = df.corr()
+plt.figure(figsize=(10, 8))
+sns.heatmap(corr_matrix, annot=True, fmt=".2f", cmap='coolwarm')
+plt.title("Correlation Matrix")
+plt.show()
+
+X = df.drop('MedHouseVal', axis = 1)
+y = df['MedHouseVal']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 42)
+
+# Feature Scaling
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+n_features = X.shape[1]
 
 # Define the model using Sequential API
 model = keras.Sequential([
     #Input layer
-    layers.Input(shape = (1, )),
+    layers.Input(shape = (n_features,)),
 
     #Hidden layer
+    layers.Dense(units = 64, activation = 'relu'),
     layers.Dense(units = 32, activation = 'relu'),
-    layers.Dense(units = 16, activation = 'relu'),
+    layers.Dense(1)
 
-    #Output layer
-    layers.Dense(units = 1)
 ])
-
-#model summary
-model.summary()
 
 # Compile the model
 model.compile(
@@ -36,20 +66,45 @@ model.compile(
     optimizer = keras.optimizers.Adam(learning_rate = 0.01),
     metrics = ['mae']
 )
+model.summary()
 
 # Train the model
 print("Starting training...")
 hsitory = model.fit(
-    X_train,
+    X_train_scaled,
     y_train,
-    epochs = 100,
-    verbose = 1
+    epochs = 50,
+    verbose = 0,
+    validation_data = (X_test_scaled, y_test)
 )
 print("Training completed.")
 
-# Evaluate the model
-test_value = np.array([[10.0]])
-prediction = model.predict(test_value)
+# Plot training & validation loss values
+plt.figure(figsize=(12, 6))
+plt.plot(hsitory.history['loss'], label='Training Loss')
+plt.plot(hsitory.history['val_loss'], label='Validation Loss')
+plt.title('Model Loss Over Epochs')
+plt.ylabel('Loss (MSE)')
+plt.xlabel('Epoch')
+plt.legend()
+plt.grid(True)
+plt.show()
 
-print(f"\nModel prediction for x = 10 : {prediction[0][0]: .2f}")
-print(f"Actual value for x = 10 : {2 * 10 + 1}")
+# Evaluate the model on test data
+loss = model.evaluate(X_test_scaled, y_test, verbose=0)
+print(f"\nTest Loss (MSE): {loss[0]:.4f}")
+
+y_pred = model.predict(X_test_scaled).flatten()
+
+# Visualize predictions vs actual values
+plt.figure(figsize=(10, 6))
+plt.scatter(y_test, y_pred, alpha=0.3)
+plt.plot([0, 5], [0, 5], '--', color='red', lw = 2, label = 'Ideal Prediction')
+plt.xlabel('Actual Values')
+plt.ylabel('Predicted Values')
+plt.title('Actual vs Predicted Values')
+plt.axis('equal')
+plt.axis('square')
+plt.legend()
+plt.grid(True)
+plt.show()
