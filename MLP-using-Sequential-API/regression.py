@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
-from tensorflow import keras
 from tensorflow.keras import layers
 import seaborn as sns
 import matplotlib.pyplot as plt
