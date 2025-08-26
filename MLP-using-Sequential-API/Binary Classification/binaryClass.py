@@ -8,6 +8,7 @@ from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dropout
 from tensorflow.keras.callbacks import EarlyStopping
+import matplotlib.pyplot as plt
 
 import numpy as np, tensorflow as tf, random, os
 seed = 42
@@ -98,3 +99,12 @@ history = model.fit(
 # evaluate the model
 val_accuracy = history.history['val_accuracy'][-1]
 print(f'\nValidation Accuracy: {val_accuracy * 100 :.2f}%')
+
+print("\nEvaluating on the test set:")
+test_loss, test_accuracy = model.evaluate(X_test, y_test)
+print(f'Test Accuracy: {test_accuracy * 100 :.2f}%')
+# Plot training & validation accuracy values
+history_df = pd.DataFrame(history.history)
+history_df.loc[:, ['loss', 'val_loss']].plot(title = "Loss curve")
+history_df.loc[:, ['accuracy', 'val_accuracy']].plot(title = "Accuracy curve")
+plt.show()
