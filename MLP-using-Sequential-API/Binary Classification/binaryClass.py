@@ -51,67 +51,67 @@ print(titanic.head())
 print(titanic.info())
 
 
-# X = titanic.drop('Survived', axis=1)
-# y = titanic['Survived'].astype("int32")
+X = titanic.drop('Survived', axis=1)
+y = titanic['Survived'].astype("int32")
 
-# # Train-test split
-# X_train, X_test, y_train, y_test = train_test_split(
-#     X, y, test_size=0.2, random_state=42
-# )
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
 
-# scaler = StandardScaler()
-# X_train = scaler.fit_transform(X_train)
-# X_test = scaler.transform(X_test)
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
 
-# print("\nTraining features shape:", X_train.shape)
-# print("Testing features shape:", X_test.shape)
+print("\nTraining features shape:", X_train.shape)
+print("Testing features shape:", X_test.shape)
 
-# # Build the model
-# model = Sequential([
-#     layers.Input(shape=(X_train.shape[1],)),
-#     layers.Dense(64, activation='relu'),
-#     Dropout(0.3),
-#     layers.Dense(32, activation='relu'),
-#     Dropout(0.2),
-#     layers.Dense(1, activation='sigmoid')
-# ])
+# Build the model
+model = Sequential([
+    layers.Input(shape=(X_train.shape[1],)),
+    layers.Dense(64, activation='relu'),
+    Dropout(0.3),
+    layers.Dense(32, activation='relu'),
+    Dropout(0.2),
+    layers.Dense(1, activation='sigmoid')
+])
 
-# # compile the model
-# optimizer = keras.optimizers.Adam(learning_rate=0.001)
-# model.compile(
-#     optimizer = optimizer,
-#     loss = 'binary_crossentropy',
-#     metrics = ['accuracy']
-# )
-# model.summary()
+# compile the model
+optimizer = keras.optimizers.Adam(learning_rate=0.001)
+model.compile(
+    optimizer = optimizer,
+    loss = 'binary_crossentropy',
+    metrics = ['accuracy']
+)
+model.summary()
 
-# early_stop = EarlyStopping(
-#     monitor='val_loss', patience=10, restore_best_weights=True
-# )
+early_stop = EarlyStopping(
+    monitor='val_loss', patience=10, restore_best_weights=True
+)
 
-# history = model.fit(
-#     X_train, y_train,
-#     epochs=200,          # higher, but training will stop early
-#     batch_size=32,
-#     validation_split=0.2,
-#     callbacks=[early_stop],
-#     verbose=0
-# )
+history = model.fit(
+    X_train, y_train,
+    epochs=200,          # higher, but training will stop early
+    batch_size=32,
+    validation_split=0.2,
+    callbacks=[early_stop],
+    verbose=0
+)
 
-# model.save("titanic_model.keras")
-# print("Keras model saved as titanic_model.keras")
-# joblib.dump(scaler, "titanic_scaler.joblib")
-# print("Scaler saved as titanic_scaler.joblib")
+model.save("titanic_model.keras")
+print("Keras model saved as titanic_model.keras")
+joblib.dump(scaler, "titanic_scaler.joblib")
+print("Scaler saved as titanic_scaler.joblib")
 
-# # evaluate the model
-# val_accuracy = history.history['val_accuracy'][-1]
-# print(f'\nValidation Accuracy: {val_accuracy * 100 :.2f}%')
+# evaluate the model
+val_accuracy = history.history['val_accuracy'][-1]
+print(f'\nValidation Accuracy: {val_accuracy * 100 :.2f}%')
 
-# print("\nEvaluating on the test set:")
-# test_loss, test_accuracy = model.evaluate(X_test, y_test)
-# print(f'Test Accuracy: {test_accuracy * 100 :.2f}%')
-# # Plot training & validation accuracy values
-# history_df = pd.DataFrame(history.history)
-# history_df.loc[:, ['loss', 'val_loss']].plot(title = "Loss curve")
-# history_df.loc[:, ['accuracy', 'val_accuracy']].plot(title = "Accuracy curve")
-# plt.show()
+print("\nEvaluating on the test set:")
+test_loss, test_accuracy = model.evaluate(X_test, y_test)
+print(f'Test Accuracy: {test_accuracy * 100 :.2f}%')
+# Plot training & validation accuracy values
+history_df = pd.DataFrame(history.history)
+history_df.loc[:, ['loss', 'val_loss']].plot(title = "Loss curve")
+history_df.loc[:, ['accuracy', 'val_accuracy']].plot(title = "Accuracy curve")
+plt.show()
