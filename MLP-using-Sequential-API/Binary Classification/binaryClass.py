@@ -11,9 +11,10 @@ print("Initial data:")
 print(titanic.head())
 
 # Clean the data
-titanic.fillna({'Age': 'median'}, inplace=True)
-titanic.fillna({'Fare': 'median'}, inplace=True)
-titanic.fillna({'Embarked': 'mode'}, inplace=True)
+titanic['Age'].fillna(titanic['Age'].median(), inplace=True)
+titanic['Fare'].fillna(titanic['Fare'].median(), inplace=True)
+titanic['Embarked'].fillna(titanic['Embarked'].mode()[0], inplace=True)
+
 
 titanic.drop(['Cabin', 'Name', 'Ticket'], axis=1, inplace=True) 
 titanic['Sex'] = titanic['Sex'].map({'male': 0, 'female': 1})
@@ -25,7 +26,7 @@ print(titanic.head())
 
 # Split the data into features and target
 X = titanic.drop('Survived', axis = 1)
-y = titanic['Survived']
+y = titanic['Survived'].astype("int32")
 
 # Split the data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(
@@ -63,5 +64,5 @@ history = model.fit(
 )
 
 # evaluate the model
-#val_accuracy = history.history['val_accuracy'][-1]
-#print(f'\nValidation Accuracy: {val_accuracy * 100 :.2f}%')
+val_accuracy = history.history['val_accuracy'][-1]
+print(f'\nValidation Accuracy: {val_accuracy * 100 :.2f}%')
