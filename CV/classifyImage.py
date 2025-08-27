@@ -27,6 +27,11 @@ model = tf.keras.Sequential([
     #input layer 
     layers.Input(shape = (32, 32, 3)),
 
+    # data augmentation
+    layers.RandomFlip("horizontal"),
+    layers.RandomRotation(0.1),
+    layers.RandomZoom(0.1),
+
     #convolutional layers : these apply filters to find features
     layers.Conv2D(32, (3, 3), activation = 'relu'),
     layers.MaxPooling2D((2, 2)),
@@ -50,7 +55,7 @@ model.compile(
 )
 history = model.fit(
     X_train, y_train,
-    epochs = 10,
+    epochs = 25,
     validation_data = (X_test, y_test)
 )
 # Evaluate the model
